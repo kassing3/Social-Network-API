@@ -7,12 +7,13 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
 
-  getSingleVideo(req, res) {
-    Video.findOne({ _id: req.params.videoId })
-      .then((video) =>
-        !video
-          ? res.status(404).json({ message: 'No video with that ID' })
-          : res.json(video)
+  getSingleThought(req, res) {
+    Thought.findOne({ _id: req.params.thoughtId })
+    .select("-__v")
+      .then((thought) =>
+        !thought
+          ? res.status(404).json({ message: 'No thought with that ID' })
+          : res.json(thought)
       )
       .catch((err) => res.status(500).json(err));
   },
@@ -20,9 +21,9 @@ module.exports = {
   // create a new thought
   createThought(req, res) {
     Thought.create(req.body)
-      .then((video) => {
+      .then((thought) => {
         return User.findOneAndUpdate(
-          { _id: req.body.thoughtId },
+          { _id: req.body.userId },
           { $addToSet: { thoughts: thought._id } },
           { new: true }
         );
@@ -39,6 +40,7 @@ module.exports = {
         res.status(500).json(err);
       });
   },
+
   updateThought(req, res) {
     Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
@@ -78,7 +80,7 @@ module.exports = {
   },
 
   // Add a thought reaction
-  addThoughtReaction(req, res) {
+  createReaction(req, res) {
     Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
       { $addToSet: { reactions: req.body } },
@@ -91,8 +93,9 @@ module.exports = {
       )
       .catch((err) => res.status(500).json(err));
   },
+
   // Remove thought reaction
-  removeThoughtReaction(req, res) {
+  removeReaction(req, res) {
     Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
       { $pull: { reactions: { reactionId: req.params.reactionId } } },
